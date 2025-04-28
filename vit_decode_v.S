@@ -64,24 +64,16 @@ rep_i:
       vsetvli  x0, t2, e16,m4
  	  vslidedown.vx v8,  v28, t2
  	  vslidedown.vx v12, v24, t2
-      vsetvli  x0, t2, e32, m4 # 16 SEW32
-      vzext.vf2  v20,  v8     # 8
-      vzext.vf2  v16,  v28    # 8
-      li  t0,0x8000
-      vsetvli  x0, t2, e16, m2 # 16 SEW16
-      vwmaccus.vx v16, t0, v24  # vd[i] = +(x[rs1] * vs2[i]) + vd[i]
-      vwmaccus.vx v16, t0, v24
-      vwmaccus.vx v20, t0, v12
-      vwmaccus.vx v20, t0, v12
-#  4*2+1+4*2+1+4*4 = 34
+      vsetvli  x0, t2, e16, m2
+      vwaddu.vv  v16,  v28, v24
+      vwaddu.vv  v20,  v8,  v12
+      li  t0,-1
+      vwmaccu.vx v16, t0, v24  # vd[i] = +(x[rs1] * vs2[i]) + vd[i]
+      vwmaccu.vx v20, t0, v12
 # VLEN 128 bits only!!!
-#      vsetvli  x0, a5, e32, m8 # 32 SEW32
-#      vzext.vf2  v16,  v28     #8
-#      li  t0,0x8000
-#      vsetvli  x0, a5, e16, m4 # 32 SEW16
-#      vwmaccus.vx v16, t0, v24  # vd[i] = +(x[rs1] * vs2[i]) + vd[i]
-#      vwmaccus.vx v16, t0, v24  #
-#   8+1+8*2 = 25
+#     vwaddu.vv  v16,  v28, v24
+#     li  t0,-1
+#     vwmaccu.vx v16, t0, v24  # vd[i] = +(x[rs1] * vs2[i]) + vd[i]
 #end mix
       vmv.x.s  t0, v28 #  if(v->new_metrics[0] > (1<<30)) {
 
@@ -108,5 +100,28 @@ scale_err:
 loop_exit:
      ret
 
-
+/*
+      li t2,16
+      vsetvli  x0, t2, e16,m4
+ 	  vslidedown.vx v8,  v28, t2
+ 	  vslidedown.vx v12, v24, t2
+      vsetvli  x0, t2, e32, m4 # 16 SEW32
+      vzext.vf2  v20,  v8     # 8
+      vzext.vf2  v16,  v28    # 8
+      li  t0,0x8000
+      vsetvli  x0, t2, e16, m2 # 16 SEW16
+      vwmaccus.vx v16, t0, v24  # vd[i] = +(x[rs1] * vs2[i]) + vd[i]
+      vwmaccus.vx v16, t0, v24
+      vwmaccus.vx v20, t0, v12
+      vwmaccus.vx v20, t0, v12
+#  4*2+1+4*2+1+4*4 = 34
+# VLEN 128 bits only!!!
+#      vsetvli  x0, a5, e32, m8 # 32 SEW32
+#      vzext.vf2  v16,  v28     #8
+#      li  t0,0x8000
+#      vsetvli  x0, a5, e16, m4 # 32 SEW16
+#      vwmaccus.vx v16, t0, v24  # vd[i] = +(x[rs1] * vs2[i]) + vd[i]
+#      vwmaccus.vx v16, t0, v24  #
+#   8+1+8*2 = 25
+*/
 
